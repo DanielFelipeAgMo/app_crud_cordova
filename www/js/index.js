@@ -1,29 +1,53 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+$(document).ready(inicio);
+        // Creo el array
+        lista_tareas=[];
+        
+        function inicio(){ 
+        	// Creo los eventos
+        	$("button").click(validar);
+        	$("#tarea").keypress(teclado);
+        	leer_guardado();
+        }
+        function leer_guardado(){
+        	// Leo el localstorage (datos locales)
+        	leido=localStorage.lista;                    	
+        	if (leido!=undefined && leido.length>0 && leido!=null){
+        		// Si hay datos guardados
+        		lista_tareas=leido.split("**");
+        		rellenar_lista();
+        	}
+        }
+        function rellenar_lista(){
+        	$("#lista").empty();
+        	for (k=0; k<lista_tareas.length;k++){
+        		$("#lista").append("<div class='linea'>"+lista_tareas[k]+"<img onclick='borrar(this)'src='img/eliminar.gif'></div>");
+        	}
 
-// Wait for the deviceready event before using any of Cordova's device APIs.
-// See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
-document.addEventListener('deviceready', onDeviceReady, false);
-
-function onDeviceReady() {
-    // Cordova is now initialized. Have fun!
-
-    console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
-    document.getElementById('deviceready').classList.add('ready');
-}
+        }
+        function guardar_datos(){
+        	// Guardo datos locales, pero antes los convierto a texto
+        	conversion=lista_tareas.join("**");
+        	localStorage.lista=conversion;
+        }
+        function teclado(e){
+        	// Detecto la pulsación del enter (código ASCII: 13)
+        	if (e.keyCode==13){
+        		validar();
+        	}                    	
+        }
+        function validar(){
+        	cosa=$("#tarea").val();
+        	if (lista_tareas.indexOf(cosa.toLowerCase())<0 && cosa.length>0){
+        		lista_tareas.push(cosa);
+        		$("#lista").append("<div class='linea'>"+cosa+"<img onclick='borrar(this)'src='img/eliminar.gif'></div>");
+        		guardar_datos();
+        	}
+        	$("#producto").val("").focus();
+        }
+        function borrar(e){
+        	// Borro el dato del array (con splice) y del html (con remove)
+        	buscar=$(e).parent().index();
+        	lista_tareas.splice(buscar,1);
+        	$(e).parent().remove();
+        	guardar_datos();
+        }
